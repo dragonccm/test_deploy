@@ -59,3 +59,4 @@ async function Home({
 }
 
 export default Home;
+export const runtime = 'edge';
