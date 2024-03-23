@@ -4,12 +4,20 @@ const threadSchema = new mongoose.Schema({
   text: {
     type: String,
     required: true,
+    index: true,
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    index: true,
   },
+  like:  [
+    {
+      type: String,
+      ref: "Thread",
+    },
+  ],
   community: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Community",
