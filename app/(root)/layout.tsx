@@ -5,17 +5,11 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 
 import "../globals.css";
-
-
-
-import RightSidebar from "@/components/shared/RightSidebar";
-import { connectToDB } from "@/lib/mongoose";
 import LeftSidebar from "@/components/shared/LeftSidebar";
-import Topbar from "@/components/shared/Topbar";
 import Bottombar from "@/components/shared/Bottombar";
-
-
-connectToDB();
+import RightSidebar from "@/components/shared/RightSidebar";
+import Topbar from "@/components/shared/Topbar";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
