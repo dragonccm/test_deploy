@@ -49,7 +49,7 @@ async function Home({
                 createdAt={post.createdAt}
                 comments={post.children}
                 totalLike={post.like}
-                isLike={post.like.indexOf(user.id) == -1 ? true : false}
+                isLike={post.like?.indexOf(user.id) === -1 ? true : false || false}
                 img={post.image? post.image:''}
                 />
                 ))}

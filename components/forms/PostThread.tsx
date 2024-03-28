@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
+import fileType from "file-type";
 
 import {
   Form,
@@ -37,16 +38,15 @@ function PostThread({ userId }: Props) {
 
   const [files, setFiles] = useState<File[]>([]);
   const { organization } = useOrganization();
-
+  const [isUploading, setIsUploading] = useState(false);
   const form = useForm<z.infer<typeof ThreadValidation>>({
     resolver: zodResolver(ThreadValidation),
     defaultValues: {
-      profile_photo:"",
+      profile_photo: "",
       thread: "",
       accountId: userId,
     },
   });
-
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     const blob = values.profile_photo;
 
@@ -59,11 +59,11 @@ function PostThread({ userId }: Props) {
       }
     }
 
-    
+    setIsUploading(true)
     await createThread({
       text: values.thread,
       author: userId,
-      like:[],
+      like: [],
       communityId: organization ? organization.id : null,
       path: pathname,
       image: values.profile_photo,
@@ -93,7 +93,6 @@ function PostThread({ userId }: Props) {
       fileReader.readAsDataURL(file);
     }
   };
-
   return (
     <Form {...form}>
       <form
@@ -113,9 +112,9 @@ function PostThread({ userId }: Props) {
               </FormControl>
               <FormMessage />
 
-              
+
             </FormItem>
-            
+
           )}
         />
         <FormField
@@ -139,7 +138,7 @@ function PostThread({ userId }: Props) {
                     alt='profile_icon'
                     width={100}
                     height={100}
-                    className='object-contain min-h-80 min-w-80 rounded-2xl hover:bg-sky-700' 
+                    className='object-contain min-h-80 min-w-80 rounded-2xl hover:bg-sky-700'
                   />
                 )}
               </FormLabel>
@@ -156,9 +155,13 @@ function PostThread({ userId }: Props) {
           )}
         />
 
-        <Button type='submit' className='bg-primary-500'>
-          Post Thread
-        </Button>
+        {isUploading ? (
+          <p className='text-center text-base-semibold text-sky-500'>Uploading...</p>
+        ) : (
+          <Button type='submit' className='bg-primary-500'>
+            Post Thread
+          </Button>
+        )}
       </form>
     </Form>
   );

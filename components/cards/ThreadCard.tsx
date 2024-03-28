@@ -71,7 +71,7 @@ function ThreadCard({
           <div className='flex w-full flex-col'>
             <Link href={`/profile/${author.id}`} className='w-fit'>
               <h4 className='cursor-pointer text-base-semibold text-light-1'>
-                {author.name}
+                {author.name},{isLike}
               </h4>
             </Link>
             <Link href={`/thread/${id}`}>
@@ -79,7 +79,7 @@ function ThreadCard({
             </Link>
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
               {
-                img? (<div className="relative h-80 w-120 ">
+                img? (<div className="relative h-80 w-120 bg-img-bg rounded ">
                 <Image
                   src={img}
                   alt="profile image"

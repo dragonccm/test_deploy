@@ -20,12 +20,15 @@ function LikeThread({
 }: Props) {
   const [isLiked, setIsLiked] = useState(false); 
   const [currlike, setTotalLike] = useState(0); 
+
   useEffect(() => {
     if (isLike !== undefined) {
       setIsLiked(isLike);
     }
     setTotalLike(totalLike.length)
+
   }, []);
+
   useEffect(() => {
     if (isLike !== undefined) {
       setIsLiked(isLike);
