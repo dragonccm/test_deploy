@@ -42,7 +42,7 @@ async function Home({
                 currentUserId={user.id}
                 parentId={post.parentId}
                 content={
-                    post.text.length >=700 ? post.text.slice(0, 600)+'\nxem thêm....' : post.text
+                    post.text.length >=400 ? post.text.slice(0, 300)+'\nxem thêm....' : post.text
                     }
                 author={post.author}
                 community={post.community}
