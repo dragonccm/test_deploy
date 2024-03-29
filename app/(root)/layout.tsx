@@ -19,8 +19,8 @@ connectToDB();
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Threads",
-  description: "A Next.js 13 Meta Threads application",
+  title: "WTF_SOCIAL",
+  description: "A Next.js 13 Meta WTF_SOCIAL application",
 };
 
 export default function RootLayout({
