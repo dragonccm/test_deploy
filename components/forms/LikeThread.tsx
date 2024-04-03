@@ -32,18 +32,17 @@ function LikeThread({
     setIsLiked((prevIsLiked) => {
       const updatedIsLiked = !prevIsLiked;
 
-      setIsLiking(true);
-      setTotalLike((prevTotalLike) => prevTotalLike + (updatedIsLiked ? 1 : -1));
-
-      
+      // Clear existing timeout
       if (likeTimeout) {
         clearTimeout(likeTimeout);
       }
 
       const timeout = setTimeout(() => {
+        setIsLiking(true);
         addLikeToThread(JSON.parse(threadId), userId, updatedIsLiked)
           .then(() => {
-            
+            setIsLiked(updatedIsLiked);
+            setTotalLike((currlike) => (updatedIsLiked ? currlike + 1 : currlike - 1));
           })
           .catch((error) => {
             console.error("Error updating like:", error);
@@ -51,21 +50,21 @@ function LikeThread({
           .finally(() => {
             setIsLiking(false);
           });
-      },250); 
+      }, 2000); // Đặt thời gian delay ở đây, ví dụ 2000ms (2 giây)
 
       setLikeTimeout(timeout);
 
       return updatedIsLiked;
     });
 
-    setIsLiking(false); 
+    setIsLiking(false); // Đặt trạng thái liking thành false để ngay lập tức thể hiện sự thay đổi của người dùng
   };
 
   return (
     <>
       <div className="item-center flex gap-2">
         <Image
-          src={isLiked ? "/assets/heart-gray-filled.svg" :  "/assets/heart-gray.svg" }
+          src={isLiked ? "/assets/heart-gray-filled.svg": "/assets/heart-gray.svg" }
           alt="heart"
           width={24}
           height={24}
@@ -75,10 +74,9 @@ function LikeThread({
         <p className="mt-1 text-subtle-medium text-gray-1">{currlike} like</p>
       </div>
 
-      {isLiking}
+      {isLiking && <p>Liking...</p>}
     </>
   );
 }
-
 
 export default LikeThread;
