@@ -117,9 +117,9 @@ function ThreadCard({
                   className='cursor-pointer object-contain'
                 />
                 <ShareBtn
-                  quote="kfdhfkdkfd"
+                  quote={content}
                   hashtag="#food"
-                  url="https://wtfsocial.vercel.app/thread/660d1aa4c2648313d8710319"
+                  url={`https://wtfsocial.vercel.app/thread/${id}`}
                 />
                 
               </div>
