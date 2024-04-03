@@ -1,63 +1,35 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-
+"use client"
 import Image from "next/image";
-import { TwitterShareButton } from "react-share";
+import {
+  FacebookShareButton,
+  FacebookIcon,
+} from 'next-share'
 
 interface Props {
-  threadId: string;
-  title: string; // Thêm props cho tiêu đề bài viết
-  description: string; // Thêm props cho mô tả bài viết
-  imageUrl: string; // Thêm props cho URL hình ảnh
+  quote: string; // Thêm props cho tiêu đề bài viết
+  hashtag: string; // Thêm props cho mô tả bài viết
+  url: string; // Thêm props cho URL hình ảnh
 }
 
 function ShareBtn({
-  threadId,
-  title,
-  description,
-  imageUrl,
+  quote,
+  hashtag,
+  url,
 }: Props) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const pathname = useRouter().pathname;
-
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
   return (
-    <>
+    <FacebookShareButton
+      url={url}
+      quote={quote}
+      hashtag={hashtag}
+    >
       <Image
-        src="/assets/share.svg"
-        alt="Chia sẻ"
+        src='/assets/share.svg'
+        alt='heart'
         width={24}
         height={24}
-        className="cursor-pointer object-contain"
-        onClick={handleModalOpen}
+        className='cursor-pointer object-contain'
       />
-
-      <div
-        className="modal"
-        style={{
-          display: isModalOpen ? "flex" : "none",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 100,
-        }}
-      >
-
-        
-        <button onClick={handleModalClose}>Đóng</button>
-      </div>
-    </>
+    </FacebookShareButton>
   );
 }
 

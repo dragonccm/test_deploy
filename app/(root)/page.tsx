@@ -10,7 +10,6 @@ import { Suspense } from "react";
 import Loadings from "./loading";
 import { Button } from "@/components/ui/button";
 
-
 async function Home({
   searchParams,
 }: {
@@ -37,22 +36,22 @@ async function Home({
             <>
               {result.posts.map((post) => (
                 <ThreadCard
-                key={post._id}
-                id={post._id}
-                currentUserId={user.id}
-                parentId={post.parentId}
-                content={
-                    post.text.length >=700 ? post.text.slice(0, 600)+'\nxem thêm....' : post.text
-                    }
-                author={post.author}
-                community={post.community}
-                createdAt={post.createdAt}
-                comments={post.children}
-                totalLike={post.like}
-                isLike={post.like.indexOf(user.id) == -1 ? true : false}
-                img={post.image? post.image:''}
+                  key={post._id}
+                  id={post._id}
+                  currentUserId={user.id}
+                  parentId={post.parentId}
+                  content={
+                    post.text.length >= 700 ? post.text.slice(0, 600) + '\nxem thêm....' : post.text
+                  }
+                  author={post.author}
+                  community={post.community}
+                  createdAt={post.createdAt}
+                  comments={post.children}
+                  totalLike={post.like}
+                  isLike={post.like.indexOf(user.id) == -1 ? true : false}
+                  img={post.image ? post.image : ''}
                 />
-                ))}
+              ))}
             </>
           )}
         </section>

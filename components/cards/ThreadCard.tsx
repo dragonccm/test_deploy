@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatDateString } from "@/lib/utils";
 import DeleteThread from "../forms/DeleteThread";
 import LikeThread from "../forms/LikeThread";
+import ShareBtn from "../forms/ShareThread";
 
 
 interface Props {
@@ -71,7 +72,7 @@ function ThreadCard({
           <div className='flex w-full flex-col'>
             <Link href={`/profile/${author.id}`} className='w-fit'>
               <h4 className='cursor-pointer text-base-semibold text-light-1'>
-                {author.name}
+                {author.name},{isLike}
               </h4>
             </Link>
             <Link href={`/thread/${id}`}>
@@ -79,7 +80,7 @@ function ThreadCard({
             </Link>
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
               {
-                img? (<div className="relative h-80 w-120 ">
+                img? (<div className="relative h-80 w-120 bg-img-bg rounded ">
                 <Image
                   src={img}
                   alt="profile image"
@@ -115,12 +116,10 @@ function ThreadCard({
                   height={24}
                   className='cursor-pointer object-contain'
                 />
-                <Image
-                  src='/assets/share.svg'
-                  alt='heart'
-                  width={24}
-                  height={24}
-                  className='cursor-pointer object-contain'
+                <ShareBtn
+                  quote="kfdhfkdkfd"
+                  hashtag="#food"
+                  url="https://wtfsocial.vercel.app/thread/660d1aa4c2648313d8710319"
                 />
                 
               </div>
