@@ -51,7 +51,7 @@ function LikeThread({
           .finally(() => {
             setIsLiking(false);
           });
-      }, 2000); 
+      },250); 
 
       setLikeTimeout(timeout);
 
