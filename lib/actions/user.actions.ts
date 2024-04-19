@@ -1,20 +1,50 @@
-import User from "../models/user.model";
-import zod from "zod";
+"use server"
+import UserAccount from "../models/user.model";
+import bcrypt from "bcryptjs";
+
 
 const createUser = async (data: any) => {
-  const schema = zod.object({
-    username: zod.string(),
-    password: zod.string().min(6),
-    fullname: zod.string(),
-    gender: zod.string(),
-    dob: zod.string(),
-    hometown: zod.string(),
-  });
+  try {
+    const users = await UserAccount.findOne({ username: data.username }, { _id: 1 });
+    if (users) {
+      return { err: "Người dùng đã tồn tại" };
+    } else {
 
-  const validatedData = await schema.parseAsync(data);
-  const user = new User(validatedData);
-  await user.save();
-  return user;
+      // mã hoá mật khẩu
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(data.password, salt);
+
+      // thay thế mật khẩu gốc bằng mật khẩu đã mã hoá
+      data.password = hashedPassword;
+
+      const newUser = new UserAccount(data);
+      await newUser.save();
+      return { err: null, res: newUser };
+    }
+  } catch (error: any) {
+    return { err: error.message };
+  }
 };
+const checklogin = async (credentials: any) => {
+  try {
+    console.log("hfghfgh")
+    const user = await UserAccount.findOne({ username: credentials.username });
+    if (user) {
+      const isPasswordCorrect = await bcrypt.compare(
+        credentials.password,
+        user.password
+      );
+      if (isPasswordCorrect) {
+        return user;
+      };
+    }
 
-export { createUser };
+  } catch (error: any) {
+    throw new Error(error);
+  }
+}
+
+export {
+  createUser,
+  checklogin
+};

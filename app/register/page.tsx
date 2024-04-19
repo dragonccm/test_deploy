@@ -2,8 +2,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-import { useToast } from "@/components/ui/use-toast"
 import {
   Form,
   FormControl,
@@ -22,7 +23,8 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import { useEffect } from "react";
+// import { useToast } from "@/components/ui/use-toast"
 // Comprehensive registration form schema
 const FormSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters"),
@@ -42,6 +44,14 @@ const FormSchema = z.object({
 
 
 const Page = () => {
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+  useEffect(() => {
+    if (sessionStatus === "authenticated") {
+      router.replace("/dashboard");
+    }
+  }, [sessionStatus, router]);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -54,14 +64,32 @@ const Page = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    alert(`You submitted the following values: ${JSON.stringify(data, null, 2)}`)
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+
+    try{
+      const res = await fetch("api/register",{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body:JSON.stringify(data),
+      })
+      if(res.status === 400){
+        alert(res.status)
+      } else if(res.status ===200) {
+        alert(res.status)
+
+        router.push("/login")
+      }
+    }catch(err){
+      console.log(err);
+    }
   }
 
   return (
     <main className='mx-auto flex max-w-5xl w-2/4 flex-col justify-center px-10 py-20 '>
       <h1 className='head-text'>Đăng Ký</h1>
-  
+
 
       <section className='mt-9 bg-dark-2 p-10 rounded-md'>
         <Form  {...form}>
@@ -69,7 +97,7 @@ const Page = () => {
             {/* Username field */}
             <FormField control={form.control} name="username" render={({ field }) => (
               <FormItem>
-               <FormLabel className='text-base-semibold text-light-2'>Username</FormLabel>
+                <FormLabel className='text-base-semibold text-light-2'>Username</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter username" {...field} />
                 </FormControl>
@@ -81,7 +109,7 @@ const Page = () => {
             {/* Password field */}
             <FormField control={form.control} name="password" render={({ field }) => (
               <FormItem>
-               <FormLabel className='text-base-semibold text-light-2'>Password</FormLabel>
+                <FormLabel className='text-base-semibold text-light-2'>Password</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="Enter password" {...field} />
                 </FormControl>
@@ -91,7 +119,7 @@ const Page = () => {
             )} />
             <FormField control={form.control} name="confirm" render={({ field }) => (
               <FormItem>
-               <FormLabel className='text-base-semibold text-light-2'>Confirm Password</FormLabel>
+                <FormLabel className='text-base-semibold text-light-2'>Confirm Password</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="Confirm password" {...field} />
                 </FormControl>
@@ -103,7 +131,7 @@ const Page = () => {
             {/* Full name field */}
             <FormField control={form.control} name="fullname" render={({ field }) => (
               <FormItem>
-               <FormLabel className='text-base-semibold text-light-2'>Full Name</FormLabel>
+                <FormLabel className='text-base-semibold text-light-2'>Full Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter your full name" {...field} />
                 </FormControl>
@@ -113,7 +141,7 @@ const Page = () => {
             {/* Full name field */}
             <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem>
-               <FormLabel className='text-base-semibold text-light-2'>Email</FormLabel>
+                <FormLabel className='text-base-semibold text-light-2'>Email</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter your full Email" {...field} />
                 </FormControl>
@@ -127,7 +155,7 @@ const Page = () => {
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                 <FormLabel className='text-base-semibold text-light-2'>Gender</FormLabel>
+                  <FormLabel className='text-base-semibold text-light-2'>Gender</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -151,7 +179,7 @@ const Page = () => {
             {/* Date of birth field */}
             <FormField control={form.control} name="dob" render={({ field }) => (
               <FormItem>
-               <FormLabel className='text-base-semibold text-light-2'>Date of Birth</FormLabel>
+                <FormLabel className='text-base-semibold text-light-2'>Date of Birth</FormLabel>
                 <FormControl>
                   <Input type="date" placeholder="Select date of birth" {...field} />
                 </FormControl>
@@ -162,7 +190,7 @@ const Page = () => {
             {/* Hometown field */}
             <FormField control={form.control} name="hometown" render={({ field }) => (
               <FormItem>
-               <FormLabel className='text-base-semibold text-light-2'>Hometown</FormLabel>
+                <FormLabel className='text-base-semibold text-light-2'>Hometown</FormLabel>
                 <FormControl>
                   {/* Replace with your implementation for hometown input (e.g., Input, Select) */}
                   <Input placeholder="Enter your hometown" {...field} />
@@ -181,4 +209,3 @@ const Page = () => {
   )
 }
 export default Page;
-

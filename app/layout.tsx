@@ -6,6 +6,9 @@ import "../app/globals.css";
 import { connectToDB } from "@/lib/mongoose";
 
 const inter = Inter({ subsets: ["latin"] });
+import { getServerSession } from "next-auth";
+import SessionProvider from "../provider/SessionProvider";
+import Navbar from "@/components/shared/Topbar";
 
 export const metadata: Metadata = {
   title: "Auth",
@@ -13,18 +16,23 @@ export const metadata: Metadata = {
 };
 connectToDB();
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession();
+  console.log("sds",session)
   return (
-      <html lang='en'>
-        <body className={`${inter.className} bg-dark-1`}>
+    <html lang='en'>
+      <body className={`${inter.className} bg-dark-1`}>
+        <SessionProvider session={session}>
           <div className="w-ful flex justify-center items-center min-h-screen">
-          {children}
+          <Navbar />
+            {children}
           </div>
-        </body>
-      </html>
+        </SessionProvider>
+      </body>
+    </html>
   );
 }
