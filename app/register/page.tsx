@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast"
 
 import {
   Form,
@@ -24,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import Link from "next/link";
 // import { useToast } from "@/components/ui/use-toast"
 // Comprehensive registration form schema
 const FormSchema = z.object({
@@ -45,6 +47,7 @@ const FormSchema = z.object({
 
 const Page = () => {
   const router = useRouter();
+  const { toast } = useToast()
   const { data: session, status: sessionStatus } = useSession();
   useEffect(() => {
     if (sessionStatus === "authenticated") {
@@ -66,22 +69,28 @@ const Page = () => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
 
-    try{
-      const res = await fetch("api/register",{
+    try {
+      const res = await fetch("api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body:JSON.stringify(data),
+        body: JSON.stringify(data),
       })
-      if(res.status === 400){
-        alert(res.status)
-      } else if(res.status ===200) {
-        alert(res.status)
+      if (res.status === 400) {
+        toast({
+          title: "Lỗi Đăng Ký Hãy Nhập Lại",
+          description: "Kiểm Tra lại Thông Tin Và Đăng Ký",
+        })
+      } else if (res.status === 200) {
+        toast({
+          title: "Đã Tạo Tài Khoản",
+          description: "Bạn Dẫ Đăng Ký Thành Công TÀi Khoản",
+        })
 
         router.push("/login")
       }
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
   }
@@ -201,7 +210,13 @@ const Page = () => {
             )} />
 
             {/* Submit button */}
-            <Button type="submit" className="">Submit</Button>
+            <Button type="submit" className="hover:bg-zinc-700">Submit</Button>
+            <FormDescription>
+              Bạn Đã Có Tài Khoản
+              <Link href={`/login`} className='w-fit'>
+                <span className="text-cyan-400 hover:text-cyan-700"> Register</span>
+              </Link>
+            </FormDescription>
           </form>
         </Form>
       </section>

@@ -44,7 +44,22 @@ const checklogin = async (credentials: any) => {
   }
 }
 
+
+const getUser = async (data: any) => {
+  try {
+    const users = await UserAccount.findOne({ email: data.email }, { _id: 0 });
+    if (users) {
+      return {err:"1",data:users};
+    } else {
+      return {err:"0",data:"người dùng không tồn tại"}
+    }
+  } catch (error: any) {
+    return { err: error.message };
+  }
+};
+
 export {
   createUser,
-  checklogin
+  checklogin,
+  getUser
 };

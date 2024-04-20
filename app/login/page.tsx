@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
-
+import { useToast } from "@/components/ui/use-toast"
 
 // Comprehensive registration form schema
 const FormSchema = z.object({
@@ -31,6 +31,7 @@ const FormSchema = z.object({
 
 
 const Page = () => {
+  const { toast } = useToast()
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
 
@@ -58,10 +59,16 @@ const Page = () => {
       password,
     });
     if (res?.error) {
-      alert("Invalid email or password");
+       toast({
+          title: "Lỗi Đăng Nhập",
+          description: "Invalid email or password",
+        })
       if (res?.url) router.replace("/dashboard");
     } else {
-      alert("");
+       toast({
+          title: "Thành Công",
+          description: "Bạn Đã Đăng Nhập Thành Công",
+        })
     }
   }
 
