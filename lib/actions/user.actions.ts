@@ -27,7 +27,6 @@ const createUser = async (data: any) => {
 };
 const checklogin = async (credentials: any) => {
   try {
-    console.log("hfghfgh")
     const user = await UserAccount.findOne({ username: credentials.username });
     if (user) {
       const isPasswordCorrect = await bcrypt.compare(
@@ -35,7 +34,20 @@ const checklogin = async (credentials: any) => {
         user.password
       );
       if (isPasswordCorrect) {
-        return user;
+        const newUser = {
+          _id: user._id,
+          name: user.username,  // đổi "username" thành "name"
+          email: user.email,
+          password: user.password,
+          fullname: user.fullname,
+          gender: user.gender,
+          dob: user.dob,
+          hometown: user.hometown,
+          __v: user.__v
+        }
+        
+        console.log(newUser);
+        return newUser;
       };
     }
 
