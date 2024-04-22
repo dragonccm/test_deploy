@@ -1,10 +1,18 @@
-"use client";
+
 import React from "react";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-const Navbar = () => {
-    const { data: session }: any = useSession();
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+
+
+const Navbar = async () => {
+    const session = await getServerSession();
+
+    if (!session) {
+        redirect("/register");
+    }
+
     return (
         <nav className='topbar'>
             <Link href='/' className='flex items-center gap-4'>
@@ -12,13 +20,20 @@ const Navbar = () => {
                 <p className='text-heading3-bold text-light-1 max-xs:hidden'>WTF SOCIAL</p>
             </Link>
 
-            <div className='flex items-center gap-1'>
-                <div className='block md:hidden'>
-
+            {!session ? (
+                <Link href='/login' className='flex items-center gap-4'>
+                    <p className='text-heading3-bold text-light-2 max-xs:hidden'>login</p>
+                </Link>) : (
+                <div className='flex items-center gap-1'>
+                    <div className='block md:hidden'>
+                    </div>
+                    <h1 className="text-heading3-bold text-light-1 max-xs:hidden">
+                        <Link href={'/profile/' + session.user?.name} className='flex items-center gap-4'>
+                            <p className='text-heading3-bold text-light-1 max-xs:hidden'>{session.user?.name}</p>
+                        </Link>
+                    </h1>
                 </div>
-
-
-            </div>
+            )}
         </nav>
     );
 };

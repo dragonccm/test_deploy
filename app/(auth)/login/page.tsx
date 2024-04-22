@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast"
+import Link from "next/link";
 
 // Comprehensive registration form schema
 const FormSchema = z.object({
@@ -105,6 +106,12 @@ const Page = () => {
             )} />
             {/* Submit button */}
             <Button type="submit" className="">Submit</Button>
+            <FormDescription>
+              Bạn Đã Có Tài Khoản
+              <Link href={`/register`} className='w-fit'>
+                <span className="text-cyan-400 hover:text-cyan-700"> Register</span>
+              </Link>
+            </FormDescription>
           </form>
         </Form>
       </section>

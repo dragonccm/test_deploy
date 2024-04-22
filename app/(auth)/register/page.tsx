@@ -5,7 +5,10 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast"
-
+import Image from "next/image";
+import { ChangeEvent, useState } from "react";
+import { useUploadThing } from "@/lib/uploadthing";
+import { isBase64Image } from "@/lib/utils";
 import {
   Form,
   FormControl,
@@ -29,6 +32,7 @@ import Link from "next/link";
 // import { useToast } from "@/components/ui/use-toast"
 // Comprehensive registration form schema
 const FormSchema = z.object({
+  profile_photo: z.string(),
   username: z.string().min(2, "Username must be at least 2 characters"),
   password: z
     .string()
@@ -49,6 +53,8 @@ const Page = () => {
   const router = useRouter();
   const { toast } = useToast()
   const { data: session, status: sessionStatus } = useSession();
+  const { startUpload } = useUploadThing("media");
+  const [files, setFiles] = useState<File[]>([]);
   useEffect(() => {
     if (sessionStatus === "authenticated") {
       router.replace("/dashboard");
@@ -58,6 +64,7 @@ const Page = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
+      profile_photo: "",
       username: "",
       password: "",
       fullname: "",
@@ -68,7 +75,15 @@ const Page = () => {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const blob = data.profile_photo;
 
+    const hasImageChanged = isBase64Image(blob);
+    if (hasImageChanged) {
+      const imgRes = await startUpload(files);
+      if (imgRes && imgRes[0].fileUrl) {
+        data.profile_photo = imgRes[0].fileUrl;
+      }
+    }
     try {
       const res = await fetch("api/register", {
         method: "POST",
@@ -94,9 +109,30 @@ const Page = () => {
       console.log(err);
     }
   }
+  const handleImage = (
+    e: ChangeEvent<HTMLInputElement>,
+    fieldChange: (value: string) => void
+  ) => {
+    e.preventDefault();
 
+    const fileReader = new FileReader();
+
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setFiles(Array.from(e.target.files));
+
+      if (!file.type.includes("image")) return;
+
+      fileReader.onload = async (event) => {
+        const imageDataUrl = event.target?.result?.toString() || "";
+        fieldChange(imageDataUrl);
+      };
+
+      fileReader.readAsDataURL(file);
+    }
+  };
   return (
-    <main className='mx-auto flex max-w-5xl w-2/4 flex-col justify-center px-10 py-20 '>
+    <main className='mx-auto flex max-w-5xl w-3/4 flex-col justify-center px-10 py-20 '>
       <h1 className='head-text'>Đăng Ký</h1>
 
 
@@ -104,6 +140,43 @@ const Page = () => {
         <Form  {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col justify-center gap-10'>
             {/* Username field */}
+            <FormField
+              control={form.control}
+              name='profile_photo'
+              render={({ field }) => (
+                <FormItem className='flex items-center gap-4'>
+                  <FormLabel className='account-form_image-label'>
+                    {field.value ? (
+                      <Image
+                        src={field.value}
+                        alt='profile_icon'
+                        width={96}
+                        height={96}
+                        priority
+                        className='rounded-full object-contain'
+                      />
+                    ) : (
+                      <Image
+                        src='/assets/profile.svg'
+                        alt='profile_icon'
+                        width={24}
+                        height={24}
+                        className='object-contain'
+                      />
+                    )}
+                  </FormLabel>
+                  <FormControl className='flex-1 text-base-semibold text-gray-200'>
+                    <Input
+                      type='file'
+                      accept='image/*'
+                      placeholder='Add profile photo'
+                      className='account-form_image-input'
+                      onChange={(e) => handleImage(e, field.onChange)}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <FormField control={form.control} name="username" render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-base-semibold text-light-2'>Username</FormLabel>
@@ -214,7 +287,7 @@ const Page = () => {
             <FormDescription>
               Bạn Đã Có Tài Khoản
               <Link href={`/login`} className='w-fit'>
-                <span className="text-cyan-400 hover:text-cyan-700"> Register</span>
+                <span className="text-cyan-400 hover:text-cyan-700"> Đăng Nhập </span>
               </Link>
             </FormDescription>
           </form>
