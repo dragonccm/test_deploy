@@ -1,7 +1,6 @@
 
 
 "use client"
-import { format } from 'date-fns';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { objectInputType, z } from "zod";
@@ -12,6 +11,10 @@ import Image from "next/image";
 import { ChangeEvent, useState } from "react";
 import { useUploadThing } from "@/lib/uploadthing";
 import { isBase64Image } from "@/lib/utils";
+import { format } from "date-fns"
+import { CalendarIcon, Loader2 } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Form,
   FormControl,
@@ -32,30 +35,43 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import Link from "next/link";
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 const FormSchema = z.object({
   profile_photo: z.string(),
   username: z.string().min(2, "Username must be at least 2 characters"),
-  password: z.optional(z.string()),
-  newpassword: z.optional(z.string()),
-  dob: z.date(),
+  // password: z.optional(z.string()),
+  // newpassword: z.optional(z.string()),
+  dob: z.date({
+    required_error: "A date of birth is required.",
+  }),
   confirm: z.optional(z.string()),
   fullname: z.string().nonempty("không được để trống trường này "),
   gender: z.string().nonempty("không được để trống trường này "),
   hometown: z.string().nonempty("không được để trống trường này "),
   email: z.string().email("Địa chỉ email không hợp lệ").nonempty("Địa chỉ email là bắt buộc"),
-}).refine((data) => data.newpassword === data.confirm, {
-  message: "Passwords don't match",
-  path: ["confirm"],
 })
+// .refine((data) => data.newpassword === data.confirm, {
+//   message: "Passwords don't match",
+//   path: ["confirm"],
+// })
 interface Props {
-  session: object,
+  session: {
+    user: {
+      name: Object,
+      email: string,
+      image: string
+    }
+  },
   profile_photo: string,
   username: string,
   password: string,
   fullname: string,
   gender: string,
-  dob: string,
+  dob: Date,
   hometown: string,
   email: string,
 }
@@ -65,24 +81,24 @@ const AccountProfile = ({
   session,
   profile_photo,
   username,
-  password,
+  // password,
   fullname,
   gender,
   dob,
   hometown,
   email,
 }: Props) => {
+  const [loading, setloading] = useState(false)
   const router = useRouter();
   const { toast } = useToast()
   const { startUpload } = useUploadThing("media");
   const [files, setFiles] = useState<File[]>([]);
-    console.log(dob)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       profile_photo: profile_photo,
       username: username,
-      password: password,
+      // password: password,
       fullname: fullname,
       email: email,
       gender: gender,
@@ -93,9 +109,8 @@ const AccountProfile = ({
 
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-
+    setloading(true)
     const blob = data.profile_photo;
-
     const hasImageChanged = isBase64Image(blob);
     if (hasImageChanged) {
       const imgRes = await startUpload(files);
@@ -106,14 +121,14 @@ const AccountProfile = ({
     const update = {
       profile_photo: data.profile_photo,
       username: data.username,
-      password: data.password,
-      newpassword: data.newpassword,
+      // password: data.password,
+      // newpassword: data.newpassword,
       fullname: data.fullname,
       email: data.email,
       gender: data.gender,
-      dob: data.dob,
+      dob: data.dob ? data.dob : dob,
       hometown: data.hometown,
-      sessionUser: session.user.name
+      sessionUser: session?.user?.name
     }
     try {
       const res = await fetch("/api/editprofile", {
@@ -123,16 +138,30 @@ const AccountProfile = ({
         },
         body: JSON.stringify(update),
       })
-        .then((response) => response.json())
+        .then((response: any) => {
+          if (response.status == 200) {
+            toast({
+              title: "cập nhật thành công ",
+            }),
+              setloading(false)
+          } else {
+            toast({
+              title: "Lỗi Cập Nhật",
+            }),
+              setloading(false)
+          }
+        })
         .then((data) => {
           console.log("trong kia", data);
+          setloading(false)
         })
         .catch((error) => {
           console.log(error);
+          setloading(false)
         });
-      console.log(res);
     } catch (err) {
       console.log(err);
+      setloading(false)
     }
   }
 
@@ -214,7 +243,7 @@ const AccountProfile = ({
             )} />
 
             {/* Password field */}
-            <FormField control={form.control} name="password" render={({ field }) => (
+            {/* <FormField control={form.control} name="password" render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-base-semibold text-light-2'>Password</FormLabel>
                 <FormControl>
@@ -243,7 +272,7 @@ const AccountProfile = ({
                 <FormDescription>Please enter your password again.</FormDescription>
                 <FormMessage />
               </FormItem>
-            )} />
+            )} /> */}
 
             {/* Full name field */}
             <FormField control={form.control} name="fullname" render={({ field }) => (
@@ -294,15 +323,50 @@ const AccountProfile = ({
             />
 
             {/* Date of birth field */}
-            <FormField control={form.control} name="dob" render={({ field }) => (
-              <FormItem>
-                <FormLabel className='text-base-semibold text-light-2'>Current Date of Birth </FormLabel>
-                <FormControl>
-                  <Input type="date" placeholder="Select date of birth" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="dob"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className='text-base-semibold text-light-2'>Date of birth</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    Your date of birth is used to calculate your age.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Hometown field */}
             <FormField control={form.control} name="hometown" render={({ field }) => (
@@ -318,12 +382,13 @@ const AccountProfile = ({
             )} />
 
             {/* Submit button */}
-            <Button type="submit" className="hover:bg-zinc-700">Submit</Button>
+            {loading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>) : (<Button type="submit" className="hover:bg-zinc-700">Submit</Button>)}
             <FormDescription>
               Bạn Đã Có Tài Khoản
-              <Link href={`/login`} className='w-fit'>
-                <span className="text-cyan-400 hover:text-cyan-700"> Register</span>
-              </Link>
             </FormDescription>
           </form>
         </Form>

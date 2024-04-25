@@ -7,7 +7,6 @@ export const POST = async (request: any) => {
         const userRes = await createUser(resData)
         if(userRes){
             if(userRes.err){
-                
                 return new NextResponse("Tạo Tài Khoản Thất Bịa",{status: 400})
             }else{
                 return new NextResponse("Tạo Tài Khoản Thanh COng",{status: 200})

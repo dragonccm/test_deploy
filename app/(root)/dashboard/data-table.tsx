@@ -10,7 +10,20 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
+    VisibilityState,
 } from "@tanstack/react-table"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +35,12 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import React from "react"
 import { updateRole } from "@/lib/actions/user.actions"
 
@@ -41,6 +60,9 @@ export function DataTable<TData, TValue>({
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
     )
+    const [columnVisibility, setColumnVisibility] =
+        React.useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
         data,
         columns,
@@ -50,14 +72,26 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
+        onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
         state: {
             sorting,
             columnFilters,
+            columnVisibility,
+            rowSelection,
         },
     })
+
+    const neww = table.getFilteredSelectedRowModel().rows
+    const full = neww.map((row) => row.original._id)
+    console.log(full)
+    const handleChangeRole = async () => {
+        const response = await updateRole(full);
+        console.log(response)
+    }
     return (
         <div>
-            <div className="flex items-center py-4">
+            <div className="flex items-center py-4 text-light-2">
                 <Input
                     placeholder="Filter emails..."
                     value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -66,6 +100,58 @@ export function DataTable<TData, TValue>({
                     }
                     className="max-w-sm"
                 />
+                {full.length > 0 ?
+
+                    <AlertDialog>
+                        <AlertDialogTrigger><Button>Đổi Quyền</Button></AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Hành Động Đổi Quyền Có Thể Ảnh Hưởng Đến Trải 
+                                    Nghiệm Người Dùng Và Có Nguy Cơ rò rỉ dữ liệu
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                                <AlertDialogAction onClick={()=>handleChangeRole()}>Đổi Quyền Các Tài Khoản</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    :
+                    <><div></div></>
+
+
+                }
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="ml-auto text-black">
+                            Columns
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        {table
+                            .getAllColumns()
+                            .filter(
+                                (column) => column.getCanHide()
+                            )
+                            .map((column) => {
+                                return (
+                                    <DropdownMenuCheckboxItem
+                                        key={column.id}
+                                        className="capitalize"
+                                        checked={column.getIsVisible()}
+                                        onCheckedChange={(value) =>
+                                            column.toggleVisibility(!!value)
+                                        }
+                                    >
+                                        {column.id}
+                                    </DropdownMenuCheckboxItem>
+                                )
+                            })}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -93,14 +179,6 @@ export function DataTable<TData, TValue>({
                                 <TableRow className="text-light-1"
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
-                                    onClick={async () => {
-                                        if (row.original.role === 1) {
-                                            row.original.role = 0;
-                                        } else {
-                                            row.original.role = 1;
-                                        }
-                                        await updateRole(row.original);
-                                    }}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -136,6 +214,10 @@ export function DataTable<TData, TValue>({
                 >
                     Next
                 </Button>
+            </div>
+            <div className="flex-1 text-sm text-muted-foreground">
+                {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                {table.getFilteredRowModel().rows.length} row(s) selected.
             </div>
         </div>
     )

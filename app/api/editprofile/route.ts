@@ -12,17 +12,17 @@ export const POST = async (request: any) => {
                 if (changePass) {
                     return new NextResponse("Đã Cập Nhật", { status: 200 })
                 } else if (changePass.err == 1) {
-                    return new NextResponse(changePass.tus, { status: 200 })
+                    return new NextResponse(changePass.tus, { status: 400 })
                 }
             } else {
-                return new NextResponse("Hãy Nhập Đúng Mật Khấu Cũ", { status: 200 })
+                return new NextResponse("Hãy Nhập Đúng Mật Khấu Cũ", { status: 400 })
             }
         } else {
             const changeInfo = await updateUser(resData)
             if (changeInfo.err == 0) {
                 return new NextResponse("Đã Cập Nhật", { status: 200 })
             } else if (changeInfo.err == 1) {
-                return new NextResponse("lỗi cập nhật", { status: 200 })
+                return new NextResponse("lỗi cập nhật", { status: 400 })
             }
         }
         if (resData) {

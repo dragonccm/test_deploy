@@ -29,8 +29,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import Link from "next/link";
-// import { useToast } from "@/components/ui/use-toast"
-// Comprehensive registration form schema
+import { Loader2 } from "lucide-react";
+
 const FormSchema = z.object({
   profile_photo: z.string(),
   username: z.string().min(2, "Username must be at least 2 characters"),
@@ -50,6 +50,7 @@ const FormSchema = z.object({
 
 
 const Page = () => {
+  const [loading, setloading] = useState(false);
   const router = useRouter();
   const { toast } = useToast()
   const { data: session, status: sessionStatus } = useSession();
@@ -76,7 +77,7 @@ const Page = () => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const blob = data.profile_photo;
-
+    setloading(true)
     const hasImageChanged = isBase64Image(blob);
     if (hasImageChanged) {
       const imgRes = await startUpload(files);
@@ -97,6 +98,7 @@ const Page = () => {
           title: "Lỗi Đăng Ký Hãy Nhập Lại",
           description: "Kiểm Tra lại Thông Tin Và Đăng Ký",
         })
+        setloading(false)
       } else if (res.status === 200) {
         toast({
           title: "Đã Tạo Tài Khoản",
@@ -140,7 +142,7 @@ const Page = () => {
         <Form  {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col justify-center gap-10'>
             {/* Username field */}
-            <FormField
+            {/* <FormField
               control={form.control}
               name='profile_photo'
               render={({ field }) => (
@@ -176,7 +178,7 @@ const Page = () => {
                   </FormControl>
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField control={form.control} name="username" render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-base-semibold text-light-2'>Username</FormLabel>
@@ -283,7 +285,12 @@ const Page = () => {
             )} />
 
             {/* Submit button */}
-            <Button type="submit" className="hover:bg-zinc-700">Submit</Button>
+            {loading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>) : (<Button type="submit" className="hover:bg-zinc-700">Submit</Button>)}
+
             <FormDescription>
               Bạn Đã Có Tài Khoản
               <Link href={`/login`} className='w-fit'>

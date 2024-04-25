@@ -11,6 +11,8 @@ import SessionProvider from "../../provider/SessionProvider";
 import Navbar from "@/components/shared/Topbar";
 import { Toaster } from "@/components/ui/toaster"
 import LeftSidebar from "@/components/shared/LeftSidebar";
+import { redirect } from "next/navigation";
+import { ThemeProvider } from "@/provider/theme-provider";
 
 export const metadata: Metadata = {
   title: "Auth",
@@ -24,16 +26,27 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession();
-
+  if (session) {
+    redirect(`profile/${session.user?.name}`);
+  }
   return (
     <html lang='en'>
       <body className={`${inter.className} bg-dark-1`}>
-        <SessionProvider session={session}>
-          <section className='main-container'>
-            <div className='w-full max-w-4xl'>{children}</div>
-          </section>
-          <Toaster />
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider session={session}>
+            <section className='main-container'>
+              <div className='w-full max-w-4xl'>
+                {children}
+              </div>
+            </section>
+            <Toaster />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

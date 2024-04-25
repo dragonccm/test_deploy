@@ -18,9 +18,10 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 
 // Comprehensive registration form schema
 const FormSchema = z.object({
@@ -32,6 +33,7 @@ const FormSchema = z.object({
 
 
 const Page = () => {
+  const [loading, setloading] = useState(false);
   const { toast } = useToast()
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
@@ -51,6 +53,7 @@ const Page = () => {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    setloading(true)
     const username = data.username;
     const password = data.password
 
@@ -60,16 +63,18 @@ const Page = () => {
       password,
     });
     if (res?.error) {
-       toast({
-          title: "Lỗi Đăng Nhập",
-          description: "Invalid email or password",
-        })
+      toast({
+        title: "Lỗi Đăng Nhập",
+        description: "Invalid email or password",
+      })
+      setloading(false);
       if (res?.url) router.replace("/dashboard");
     } else {
-       toast({
-          title: "Thành Công",
-          description: "Bạn Đã Đăng Nhập Thành Công",
-        })
+      toast({
+        title: "Thành Công",
+        description: "Bạn Đã Đăng Nhập Thành Công",
+      })
+      setloading(true);
     }
   }
 
@@ -105,7 +110,12 @@ const Page = () => {
               </FormItem>
             )} />
             {/* Submit button */}
-            <Button type="submit" className="">Submit</Button>
+
+            {loading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>) : (<Button type="submit" className="">Submit</Button>)}
             <FormDescription>
               Bạn Đã Có Tài Khoản
               <Link href={`/register`} className='w-fit'>

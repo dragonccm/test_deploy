@@ -3,6 +3,7 @@ import { getUser } from "@/lib/actions/user.actions";
 import { getServerSession } from "next-auth";
 
 async function Page({ params }: { params: { id: string } }) {
+
   if (!params.id) return null;
   const session = await getServerSession();
   if (!session) return null;
@@ -13,7 +14,7 @@ async function Page({ params }: { params: { id: string } }) {
 
   return (
     <AccountProfile
-      session = { session}
+      session = {session}
       profile_photo={data.data.profile_photo}
       username={data.data.username}
       password={data.data.password}

@@ -6,19 +6,17 @@ import { ObjectId } from 'mongodb';
 const createUser = async (data: any) => {
   try {
     const users = await UserAccount.findOne({ username: data.username }, { _id: 1 }).maxTimeMS(50000);
+    console.log(users)
+
     if (users) {
       return { err: "Người dùng đã tồn tại" };
     } else {
-
-      // mã hoá mật khẩu
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(data.password, salt);
-
-      // thay thế mật khẩu gốc bằng mật khẩu đã mã hoá
       data.password = hashedPassword;
 
       const newUser = new UserAccount({
-        profile_photo: data.profile_photo,
+        profile_photo: data.profile_photo || 'https://i.pinimg.com/originals/76/07/5c/76075c11bfe509ee9a11d9baa991c40d.jpg',
         username: data.username,
         email: data.email,
         password: data.password,
@@ -26,7 +24,7 @@ const createUser = async (data: any) => {
         gender: data.gender,
         dob: data.dob,
         hometown: data.hometown,
-        role:0
+        role: 0
       });
 
       await newUser.save();
@@ -47,6 +45,7 @@ const checklogin = async (credentials: any) => {
       if (isPasswordCorrect) {
         const newUser = {
           _id: user._id,
+          image: user.profile_photo,
           name: user._id,  // đổi "username" thành "name"
           email: user.email,
           password: user.password,
@@ -109,71 +108,83 @@ const updateUser = async (data: any) => {
   }
 };
 const updateUserAndPass = async (data: any) => {
-  const clientid = new ObjectId(data.sessionUser).toHexString();
-  try {
-    const users = await UserAccount.findOne({ _id: clientid }, { _id: 1 }).maxTimeMS(50000);
-    if (users) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(data.password, salt);
+  if (data.newpassword.length > 6) {
+    const clientid = new ObjectId(data.sessionUser).toHexString();
+    try {
+      const users = await UserAccount.findOne({ _id: clientid }, { _id: 1 }).maxTimeMS(50000);
+      if (users) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(data.newpassword, salt);
 
 
-      data.newpassword = hashedPassword;
+        data.newpassword = hashedPassword;
 
-      const updatedUser = await UserAccount.findOneAndUpdate(
-        { _id: clientid },
-        {
-          username: data.username,
-          profile_photo: data.profile_photo,
-          email: data.email,
-          password: data.newpassword,
-          fullname: data.fullname,
-          gender: data.gender,
-          dob: data.dob,
-          hometown: data.hometown,
-        },
-        { new: true }
-      );
-      return { err: 0, tus: updatedUser };
-    } else {
-      return { err: 1, tus: "lỗi cập nhật" };
+        const updatedUser = await UserAccount.findOneAndUpdate(
+          { _id: clientid },
+          {
+            username: data.username,
+            profile_photo: data.profile_photo,
+            email: data.email,
+            password: data.newpassword,
+            fullname: data.fullname,
+            gender: data.gender,
+            dob: data.dob,
+            hometown: data.hometown,
+          },
+          { new: true }
+        );
+
+        return { err: 0, tus: updatedUser };
+      } else {
+        return { err: 1, tus: "lỗi cập nhật" };
+      }
+    } catch (error: any) {
+      return { err: error.message };
     }
-  } catch (error: any) {
-    return { err: error.message };
+  }
+  else {
+    return { err: 1, tus: "mật khẩu yếu " };
   }
 };
 
 
-const updateRole = async (data: any) => {
-  const clientid = new ObjectId(data._id).toHexString();
-  try {
-    const users = await UserAccount.findOne({ _id: clientid }, { _id: 1 }).maxTimeMS(50000);
-    if (users) {
-      const updatedUser = await UserAccount.findOneAndUpdate(
-        { _id: data },
-        {
-          role:data.role
-        },
-        { new: true }
-      );
-      console.log(updatedUser)
-      return { err: 0, tus: updatedUser };
-    } else {
-      return { err: 1, tus: "lỗi cập nhật" };
+const updateRole = (data: any) => {
+  const newarray = data.map((mapid: any) => new ObjectId(mapid).toHexString());
+
+  return Promise.all(newarray.map(async (_id: any) => {
+    try {
+      const users = await UserAccount.findOne({ _id: _id }, { _id: 1, role:1 }).maxTimeMS(50000);
+      if (users) {
+  
+        await UserAccount.findOneAndUpdate(
+          { _id: _id },
+          {
+            role: users.role == 1 ? 0 : 1
+          },
+          { new: true }
+        );
+        console.log("pass",users.role == 1 ? 0 : 1)
+        return { err: 0, tus:" JSON.stringify(updatedUser.role)" };
+      } else {
+        return { err: 1, tus: "lỗi cập nhật" };
+      }
+    } catch (error: any) {
+      return { err: error.message };
     }
-  } catch (error: any) {
-    return { err: error.message };
-  }
+  }));
 };
 
 // check password 
 const checkpass = async (data: any) => {
   try {
-    const user = await UserAccount.findOne({ username: data.sessionUser });
+    const user = await UserAccount.findOne({ _id: data.sessionUser });
     if (user) {
       const isPasswordCorrect = await bcrypt.compare(
         data.password,
         user.password
       );
+      console.log(isPasswordCorrect)
+
       if (isPasswordCorrect) {
         return { err: 0, tus: "success" };
       } else {

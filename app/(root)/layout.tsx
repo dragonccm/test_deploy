@@ -11,6 +11,7 @@ import SessionProvider from "../../provider/SessionProvider";
 import Navbar from "@/components/shared/Topbar";
 import { Toaster } from "@/components/ui/toaster"
 import LeftSidebar from "@/components/shared/LeftSidebar";
+import { ThemeProvider } from "@/provider/theme-provider";
 
 export const metadata: Metadata = {
   title: "Auth",
@@ -27,17 +28,26 @@ export default async function RootLayout({
 
   return (
     <html lang='en'>
-      <body className={`${inter.className} bg-dark-1`}>
-        <SessionProvider session={session}>
-          <Navbar />
-          <main className='flex flex-row'>
-            <LeftSidebar />
-            <section className='main-container'>
-              <div className='w-full max-w-4xl'>{children}</div>
-            </section>
-            <Toaster />
-          </main>
-        </SessionProvider>
+      <body className={`${inter.className}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider session={session}>
+            <Navbar />
+            <main className='flex flex-row'>
+              <LeftSidebar />
+              <section className='main-container'>
+                <div className='w-full'>
+                  {children}
+                </div>
+              </section>
+              <Toaster />
+            </main>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
