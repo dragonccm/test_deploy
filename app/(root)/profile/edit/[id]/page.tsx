@@ -1,4 +1,5 @@
-import AccountProfile from "@/components/forms/AccountProfile";
+
+import ChangeInfo from "@/components/forms/Changeinfocard";
 import { getUser } from "@/lib/actions/user.actions";
 import { getServerSession } from "next-auth";
 
@@ -13,8 +14,8 @@ async function Page({ params }: { params: { id: string } }) {
   };
 
   return (
-    <AccountProfile
-      session = {session}
+    <ChangeInfo
+      session={session}
       profile_photo={data.data.profile_photo}
       username={data.data.username}
       password={data.data.password}

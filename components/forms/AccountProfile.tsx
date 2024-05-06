@@ -242,37 +242,6 @@ const AccountProfile = ({
               </FormItem>
             )} />
 
-            {/* Password field */}
-            {/* <FormField control={form.control} name="password" render={({ field }) => (
-              <FormItem>
-                <FormLabel className='text-base-semibold text-light-2'>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Enter password" {...field} />
-                </FormControl>
-                <FormDescription>Choose a strong password that meets the requirements.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="newpassword" render={({ field }) => (
-              <FormItem>
-                <FormLabel className='text-base-semibold text-light-2'>New Password</FormLabel>
-                <FormControl>
-                  <Input type="newpassword" placeholder="Enter password" {...field} />
-                </FormControl>
-                <FormDescription>Choose a strong password that meets the requirements.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="confirm" render={({ field }) => (
-              <FormItem>
-                <FormLabel className='text-base-semibold text-light-2'>Confirm New Password</FormLabel>
-                <FormControl>
-                  <Input type="newpassword" placeholder="Confirm password" {...field} />
-                </FormControl>
-                <FormDescription>Please enter your password again.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )} /> */}
 
             {/* Full name field */}
             <FormField control={form.control} name="fullname" render={({ field }) => (

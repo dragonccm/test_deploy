@@ -108,7 +108,7 @@ const updateUser = async (data: any) => {
   }
 };
 const updateUserAndPass = async (data: any) => {
-  if (data.newpassword.length > 6) {
+  if (data.newpassword.length >= 6) {
     const clientid = new ObjectId(data.sessionUser).toHexString();
     try {
       const users = await UserAccount.findOne({ _id: clientid }, { _id: 1 }).maxTimeMS(50000);
@@ -122,14 +122,7 @@ const updateUserAndPass = async (data: any) => {
         const updatedUser = await UserAccount.findOneAndUpdate(
           { _id: clientid },
           {
-            username: data.username,
-            profile_photo: data.profile_photo,
-            email: data.email,
             password: data.newpassword,
-            fullname: data.fullname,
-            gender: data.gender,
-            dob: data.dob,
-            hometown: data.hometown,
           },
           { new: true }
         );

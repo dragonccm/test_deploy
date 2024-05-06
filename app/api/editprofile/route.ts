@@ -10,6 +10,7 @@ export const POST = async (request: any) => {
             if (checkPass.err == 0) {
                 const changePass = await updateUserAndPass(resData)
                 if (changePass) {
+                    console.log("chang",changePass)
                     return new NextResponse("Đã Cập Nhật", { status: 200 })
                 } else if (changePass.err == 1) {
                     return new NextResponse(changePass.tus, { status: 400 })
