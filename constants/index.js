@@ -9,6 +9,11 @@ export const sidebarLinks = [
     route: "/profile",
     label: "Profile",
   },
+  {
+    imgURL: "/assets/user.svg",
+    route: "/scoring",
+    label: "scoring",
+  },
 ];
 
 export const profileTabs = [
