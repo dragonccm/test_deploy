@@ -135,7 +135,7 @@ export const columns: ColumnDef<Payment>[] = [
     },
     {
         accessorKey: "role",
-        header: "role",
+        header: "state",
     },
     {
         id: "actions",

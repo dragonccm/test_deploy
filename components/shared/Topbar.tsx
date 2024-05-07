@@ -31,7 +31,7 @@ const Navbar = async () => {
                     <h1 className="text-heading3-bold text-light-1 max-xs:hidden">
                        
 
-                        <Link href={'/profile/' + session.user?.name} className='flex items-center gap-4'>
+                        <Link href={'/profile'} className='flex items-center gap-4'>
                             <div className='relative h-20 w-20 object-cover'>
                                 <Image
                                     src={session?.user?.image}

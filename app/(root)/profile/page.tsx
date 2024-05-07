@@ -13,8 +13,7 @@ import { Button } from "@/components/ui/button";
 
 
 
-async function Page({ params }: { params: { id: string } }) {
-  if (!params.id) return null;
+async function Page() {
   const session = await getServerSession();
   if (!session) return null;
   const data = await getUser(session.user?.name)
@@ -33,7 +32,7 @@ async function Page({ params }: { params: { id: string } }) {
         dob={data.data.dob}
         hometown={data.data.hometown}
       />
-      <Link href={`/profile/edit/${session.user.name}`} className='w-fit'>
+      <Link href={`/profile/edit/${session.user?.name}`} className='w-fit'>
         <Button type="submit" className="hover:bg-zinc-700">Thay Đổi Thông Tin</Button>
       </Link>
     </section>

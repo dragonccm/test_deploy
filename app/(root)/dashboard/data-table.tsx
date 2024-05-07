@@ -84,10 +84,8 @@ export function DataTable<TData, TValue>({
 
     const neww = table.getFilteredSelectedRowModel().rows
     const full = neww.map((row) => row.original._id)
-    console.log(full)
     const handleChangeRole = async () => {
         const response = await updateRole(full);
-        console.log(response)
     }
     return (
         <div>

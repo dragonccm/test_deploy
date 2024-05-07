@@ -193,7 +193,7 @@ const checkpass = async (data: any) => {
 }
 
 
-const getall = async (data: any) => {
+const getall = async () => {
   try {
     const user = await UserAccount.find({}, { password: 0 });
     if (user) {
@@ -206,7 +206,7 @@ const getall = async (data: any) => {
         gender: user.gender,
         dob: user.dob.toISOString().split("T")[0].split("-").reverse().join("/"),
         hometown: user.hometown,
-        role: user.role,
+        role: user.role==1 ? "Active":"Un Active",
         __v: user.__v,
       }));
       return { err: 0, tus: formattedUsers };
