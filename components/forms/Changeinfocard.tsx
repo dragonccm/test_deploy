@@ -34,40 +34,57 @@ const ChangeInfo = ({
 }: Props) => {
     const [showAccountProfile, setShowAccountProfile] = useState(true);
     const [showChangePass, setShowChangePass] = useState(false);
+    const [animateClass, setAnimateClass] = useState("");
 
     const handleShowAccountProfile = () => {
         setShowAccountProfile(true);
         setShowChangePass(false);
+        // setAnimateClass("animate-spin");
     };
 
     const handleShowChangePass = () => {
         setShowAccountProfile(false);
         setShowChangePass(true);
+        // setAnimateClass("animate-spin");
     };
 
     return (
         <div className="flex flex-col">
-            <div>
-                <button onClick={handleShowAccountProfile}>Account Profile</button>
-                <button onClick={handleShowChangePass}>Change Password</button>
+            <div className="w-ful flex justify-center">
+                <button
+                    className={`m-2 bg-indigo-400 px-4 py-3 bg-blue-600 rounded-md text-white outline-none focus:ring-4 shadow-lg transform active:scale-75 transition-transform `}
+                    onClick={handleShowAccountProfile}
+                >
+                    Account Profile
+                </button>
+                <button
+                    className={`m-2 bg-indigo-400 px-4 py-3 bg-blue-600 rounded-md text-white outline-none focus:ring-4 shadow-lg transform active:scale-75 transition-transform `}
+                    onClick={handleShowChangePass}
+                >
+                    Change Password
+                </button>
             </div>
 
             {showAccountProfile && (
-                <AccountProfile
-                    session={session}
-                    profile_photo={profile_photo}
-                    username={username}
-                    password={password}
-                    fullname={fullname}
-                    gender={gender}
-                    dob={dob}
-                    hometown={hometown}
-                    email={email}
-                />
+                <div className={`${animateClass}`}>
+                    <AccountProfile
+                        session={session}
+                        profile_photo={profile_photo}
+                        username={username}
+                        password={password}
+                        fullname={fullname}
+                        gender={gender}
+                        dob={dob}
+                        hometown={hometown}
+                        email={email}
+                    />
+                </div>
             )}
 
             {showChangePass && (
-                <Changepass session={session} password={password} />
+                <div className={`${animateClass}`}>
+                    <Changepass session={session} password={password}/>
+                </div>
             )}
         </div>
     );
