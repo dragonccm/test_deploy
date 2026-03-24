@@ -11,6 +11,12 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "overrides": {
+    "@mui/x-data-grid-generator": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
   "dependencies": {
     "@clerk/nextjs": "^4.29.9",
     "@clerk/themes": "^1.7.10",
