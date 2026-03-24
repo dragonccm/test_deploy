@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const threadSchema = new mongoose.Schema({
   text: {
     type: String,
-    required: true,
+    required: false,
     index: true,
   },
   author: {
@@ -15,7 +15,6 @@ const threadSchema = new mongoose.Schema({
   like:  [
     {
       type: String,
-      ref: "Thread",
     },
   ],
   community: {
@@ -35,8 +34,13 @@ const threadSchema = new mongoose.Schema({
       ref: "Thread",
     },
   ],
-  image: String,
+  image: {
+    type: String,
+    required: false,
+  },
 });
+
+threadSchema.index({ text: "text", "author.name": "text", "author.username": "text" });
 
 const Thread = mongoose.models.Thread || mongoose.model("Thread", threadSchema);
 

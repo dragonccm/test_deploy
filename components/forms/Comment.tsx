@@ -28,6 +28,7 @@ interface Props {
 
 function Comment({ threadId, currentUserImg, currentUserId }: Props) {
   const pathname = usePathname();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof CommentValidation>>({
     resolver: zodResolver(CommentValidation),
@@ -37,13 +38,14 @@ function Comment({ threadId, currentUserImg, currentUserId }: Props) {
   });
 
   const onSubmit = async (values: z.infer<typeof CommentValidation>) => {
+    setIsSubmitting(true);
     await addCommentToThread(
       threadId,
       values.thread,
       JSON.parse(currentUserId),
       pathname
     );
-
+    setIsSubmitting(false);
     form.reset();
   };
 
@@ -76,7 +78,7 @@ function Comment({ threadId, currentUserImg, currentUserId }: Props) {
           )}
         />
 
-        <Button type='submit' className='comment-form_btn'>
+        <Button type='submit' className='comment-form_btn' isLoading={isSubmitting}>
           Reply
         </Button>
       </form>

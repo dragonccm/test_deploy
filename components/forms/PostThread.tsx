@@ -36,39 +36,43 @@ function PostThread({ userId }: Props) {
   const { startUpload } = useUploadThing("media");
 
   const [files, setFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { organization } = useOrganization();
 
   const form = useForm<z.infer<typeof ThreadValidation>>({
     resolver: zodResolver(ThreadValidation),
     defaultValues: {
-      profile_photo:"",
+      profile_photo: "",
       thread: "",
       accountId: userId,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
+    setIsSubmitting(true);
     const blob = values.profile_photo;
 
+    let imageUrl = values.profile_photo;
+
     const hasImageChanged = isBase64Image(blob);
-    if (hasImageChanged) {
+    if (hasImageChanged && files.length > 0) {
       const imgRes = await startUpload(files);
 
       if (imgRes && imgRes[0].fileUrl) {
-        values.profile_photo = imgRes[0].fileUrl;
+        imageUrl = imgRes[0].fileUrl;
       }
     }
 
-    
     await createThread({
-      text: values.thread,
+      text: values.thread || "",
       author: userId,
-      like:[],
+      like: [],
       communityId: organization ? organization.id : null,
       path: pathname,
-      image: values.profile_photo,
+      image: imageUrl || "",
     });
     router.push("/");
+    setIsSubmitting(false);
   };
 
   const handleImage = (
@@ -106,16 +110,13 @@ function PostThread({ userId }: Props) {
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-3'>
               <FormLabel className='text-base-semibold text-light-2'>
-                Content
+                Content (optional if you upload an image)
               </FormLabel>
               <FormControl className='no-focus border border-dark-4 bg-dark-3 text-light-1'>
                 <Textarea rows={15} {...field} />
               </FormControl>
               <FormMessage />
-
-              
             </FormItem>
-            
           )}
         />
         <FormField
@@ -139,7 +140,7 @@ function PostThread({ userId }: Props) {
                     alt='profile_icon'
                     width={100}
                     height={100}
-                    className='object-contain min-h-80 min-w-80 rounded-2xl hover:bg-sky-700' 
+                    className='object-contain min-h-80 min-w-80 rounded-2xl hover:bg-sky-700'
                   />
                 )}
               </FormLabel>
@@ -147,16 +148,17 @@ function PostThread({ userId }: Props) {
                 <Input
                   type='file'
                   accept='image/*'
-                  placeholder='Add profile photo'
+                  placeholder='Add profile photo (optional)'
                   className='account-form_image-input'
                   onChange={(e) => handleImage(e, field.onChange)}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type='submit' className='bg-primary-500'>
+        <Button type='submit' className='bg-primary-500' isLoading={isSubmitting}>
           Post Thread
         </Button>
       </form>

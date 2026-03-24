@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
-
+import { FilterQuery, SortOrder } from "mongoose";
 
 import User from "../models/user.model";
 import Thread from "../models/thread.model";
@@ -246,7 +245,7 @@ export async function addLikeToThread(
     if (!originalThread) {
       throw new Error("Thread not found");
     }
-    
+
     const likes = originalThread.like || [];
 
     if (like) {
@@ -273,5 +272,64 @@ export async function addLikeToThread(
   } catch (err) {
     console.error("Error while adding like:", err);
     throw new Error("Unable to add like");
+  }
+}
+
+export async function searchThreads({
+  searchString = "",
+  pageNumber = 1,
+  pageSize = 20,
+  sortBy = "desc",
+}: {
+  searchString?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortBy?: SortOrder;
+}) {
+  try {
+    const skipAmount = (pageNumber - 1) * pageSize;
+    const regex = new RegExp(searchString, "i");
+
+    const query: FilterQuery<typeof Thread> = {
+      parentId: { $in: [null, undefined] },
+    };
+
+    if (searchString.trim() !== "") {
+      query.$or = [{ text: { $regex: regex } }];
+    }
+
+    const sortOptions = { createdAt: sortBy };
+
+    const threadsQuery = Thread.find(query)
+      .sort(sortOptions)
+      .skip(skipAmount)
+      .limit(pageSize)
+      .populate({
+        path: "author",
+        model: User,
+      })
+      .populate({
+        path: "community",
+        model: Community,
+      })
+      .populate({
+        path: "children",
+        populate: {
+          path: "author",
+          model: User,
+          select: "_id name parentId image",
+        },
+      });
+
+    const totalThreadsCount = await Thread.countDocuments(query);
+
+    const threads = await threadsQuery.exec();
+
+    const isNext = totalThreadsCount > skipAmount + threads.length;
+
+    return { threads, isNext };
+  } catch (error) {
+    console.error("Error fetching threads:", error);
+    throw error;
   }
 }

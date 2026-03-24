@@ -43,6 +43,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
   const { startUpload } = useUploadThing("media");
 
   const [files, setFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof UserValidation>>({
     resolver: zodResolver(UserValidation),
@@ -55,6 +56,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
   });
 
   const onSubmit = async (values: z.infer<typeof UserValidation>) => {
+    setIsSubmitting(true);
     const blob = values.profile_photo;
 
     const hasImageChanged = isBase64Image(blob);
@@ -80,6 +82,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     } else {
       router.push("/");
     }
+    setIsSubmitting(false);
   };
 
   const handleImage = (
@@ -209,7 +212,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           )}
         />
 
-        <Button type='submit' className='bg-primary-500'>
+        <Button type='submit' className='bg-primary-500' isLoading={isSubmitting}>
           {btnTitle}
         </Button>
       </form>

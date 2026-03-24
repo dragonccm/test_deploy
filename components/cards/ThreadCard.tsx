@@ -72,24 +72,25 @@ function ThreadCard({
           <div className='flex w-full flex-col'>
             <Link href={`/profile/${author.id}`} className='w-fit'>
               <h4 className='cursor-pointer text-base-semibold text-light-1'>
-                {author.name},{isLike}
+                {author.name}
               </h4>
             </Link>
             <Link href={`/thread/${id}`}>
-              <p className='mt-2 text-small-regular text-light-2 text-ellipsis'>{content}</p>
+              {content && (
+                <p className='mt-2 text-small-regular text-light-2 text-ellipsis'>{content}</p>
+              )}
             </Link>
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
-              {
-                img? (<div className="relative h-80 w-120 bg-img-bg rounded ">
-                <Image
-                  src={img}
-                  alt="profile image"
-                  fill
-                  className="cursor-poiter size-full object-contain "
-                >
-                </Image>
-              </div>):''
-              }
+              {img && (
+                <div className="relative h-80 w-120 bg-img-bg rounded ">
+                  <Image
+                    src={img}
+                    alt="post image"
+                    fill
+                    className="cursor-poiter size-full object-contain "
+                  />
+                </div>
+              )}
               
               <div className='flex gap-3.5 item-center'>
 
